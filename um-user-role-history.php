@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         1.1.0
+ * Version:         1.2.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -22,7 +22,7 @@ Class UM_User_Role_History {
 
         add_action( 'um_profile_content_user_role_history_default', array( $this, 'um_profile_content_user_role_history_default' ), 10, 1 );
         add_action( 'set_user_role',                                array( $this, 'custom_role_is_changed_user_role_history' ), 10, 3 );
-        add_action( 'um_after_user_role_is_updated',                array( $this, 'um_after_user_role_is_updated_user_role_history' ), 10, 2 );
+        add_action( 'um_after_user_role_is_updated',                array( $this, 'um_after_user_role_is_updated_user_role_history' ), 1000, 2 );
         add_filter( 'um_profile_tabs',                              array( $this, 'um_user_role_history_add_tab' ), 1000, 1 );
     }
 
@@ -48,10 +48,14 @@ Class UM_User_Role_History {
             $user_role_history = array();
         }
 
-        $user_role_history[] = array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $role );
+        if ( ! empty( $role )) {
 
-        update_user_meta( $user_id, 'user_role_history', $user_role_history );
-        UM()->user()->remove_cache( $user_id );
+            $user_role_history[] = array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $role );
+
+            update_user_meta( $user_id, 'user_role_history', $user_role_history );
+            UM()->user()->remove_cache( $user_id );
+            um_fetch_user( $user_id );
+        }
     }
 
     public function custom_role_is_changed_user_role_history( $user_id, $role, $old_roles ) {
@@ -114,9 +118,11 @@ Class UM_User_Role_History {
             foreach( $user_role_history as $role_step ) {
 
                 $role_name = UM()->roles()->get_role_name( $role_step['role']);
-                echo '<tr><td style="border-bottom:none !important;">' . esc_attr( $role_step['date'] ) . '</td>
-                          <td style="border-bottom:none !important;">' . esc_attr( $role_name ) . '</td>
-                      </tr>';
+                if ( ! empty( $role_name )) {
+                    echo '<tr><td style="border-bottom:none !important;">' . esc_attr( $role_step['date'] ) . '</td>
+                              <td style="border-bottom:none !important;">' . esc_attr( $role_name ) . '</td>
+                          </tr>';
+                }
             }
         }
 
@@ -126,4 +132,3 @@ Class UM_User_Role_History {
 }
 
 new UM_User_Role_History();
-
