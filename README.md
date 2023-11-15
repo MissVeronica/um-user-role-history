@@ -21,6 +21,7 @@ Extension to Ultimate Member for display of User Role History of Role Changes an
 1. Version 1.5.0 Code improvements.
 2. Version 2.0.0 Date format setting
 3. Version 2.1.0 Date format improved and duplicate stop.
+4. Version 2.2.0 Updated duplicate stop.
 
 ## Installation
 1. Install by downloading the plugin ZIP file and install as a new Plugin, which you upload in WordPress -> Plugins -> Add New -> Upload Plugin.
