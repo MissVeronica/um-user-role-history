@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         1.2.0
+ * Version:         1.3.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -48,9 +48,10 @@ Class UM_User_Role_History {
             $user_role_history = array();
         }
 
-        if ( ! empty( $role )) {
+        $new_role = UM()->user()->profile['role'];
+        if ( ! empty( $new_role )) {
 
-            $user_role_history[] = array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $role );
+            $user_role_history = array_merge( $user_role_history, array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $new_role ));
 
             update_user_meta( $user_id, 'user_role_history', $user_role_history );
             UM()->user()->remove_cache( $user_id );
@@ -69,7 +70,7 @@ Class UM_User_Role_History {
 
             if ( ! empty( $old_roles ) && is_array( $old_roles )) {
                 $old_role = array_shift( $old_roles );
-                $user_role_history[] = array( 'date' => date_i18n( 'm/d/Y', strtotime( um_user( 'user_registered' )) ), 'role' => $old_role );
+                $user_role_history = array_merge( $user_role_history, array( 'date' => date_i18n( 'm/d/Y', strtotime( um_user( 'user_registered' )) ), 'role' => $old_role ));
             }
         }
 
@@ -132,3 +133,4 @@ Class UM_User_Role_History {
 }
 
 new UM_User_Role_History();
+
