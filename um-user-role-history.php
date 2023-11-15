@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         2.1.0
+ * Version:         2.2.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -53,7 +53,7 @@ Class UM_User_Role_History {
 
     public function um_after_user_role_is_updated_user_role_history( $new_role, $user_id, $user ) {
 
-        if ( ! $this->duplicate_stop ) {
+        if ( $this->duplicate_stop != $new_role ) {
 
             um_fetch_user( $user_id );
             $user_role_history = um_user( 'user_role_history' );
@@ -75,7 +75,7 @@ Class UM_User_Role_History {
                 UM()->user()->remove_cache( $user_id );
                 um_fetch_user( $user_id );
 
-                $this->duplicate_stop = true;
+                $this->duplicate_stop = $new_role;
             }
         }
 
@@ -84,7 +84,7 @@ Class UM_User_Role_History {
 
     public function custom_role_is_changed_user_role_history( $user_id, $role, $old_roles ) {
 
-        if ( ! $this->duplicate_stop ) {
+        if ( $this->duplicate_stop != $role ) {
 
             um_fetch_user( $user_id );
             $user_role_history = um_user( 'user_role_history' );
@@ -115,7 +115,7 @@ Class UM_User_Role_History {
                 update_user_meta( $user_id, 'user_role_history', $user_role_history );
                 UM()->user()->remove_cache( $user_id );
 
-                $this->duplicate_stop = true;
+                $this->duplicate_stop = $role;
             }
         }
     }
