@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         1.4.0
+ * Version:         1.5.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -22,7 +22,7 @@ Class UM_User_Role_History {
 
         add_action( 'um_profile_content_user_role_history_default', array( $this, 'um_profile_content_user_role_history_default' ), 10, 1 );
         add_action( 'set_user_role',                                array( $this, 'custom_role_is_changed_user_role_history' ), 10, 3 );
-        add_filter( 'um_set_user_role',                             array( $this, 'um_after_user_role_is_updated_user_role_history' ), 1000, 3 );
+        add_filter( 'um_set_user_role',                             array( $this, 'um_after_user_role_is_updated_user_role_history' ), 10, 3 );
         add_filter( 'um_profile_tabs',                              array( $this, 'um_user_role_history_add_tab' ), 1000, 1 );
     }
 
@@ -48,9 +48,14 @@ Class UM_User_Role_History {
             $user_role_history = array();
         }
 
-        if ( ! empty( $new_role )) {
+        if ( ! empty( $new_role ) && is_array( $user_role_history )) {
 
-            $user_role_history = array_merge( $user_role_history, array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $new_role ));
+            if ( isset( $user_role_history['date'])) unset( $user_role_history['date'] );
+            if ( isset( $user_role_history['role'])) unset( $user_role_history['role'] );
+
+            $array = array();
+            $array[] = array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $new_role );
+            $user_role_history = array_merge( $user_role_history, $array );
 
             update_user_meta( $user_id, 'user_role_history', $user_role_history );
             UM()->user()->remove_cache( $user_id );
@@ -70,21 +75,33 @@ Class UM_User_Role_History {
             $user_role_history = array();
 
             if ( ! empty( $old_roles ) && is_array( $old_roles )) {
+
                 $old_role = array_shift( $old_roles );
-                $user_role_history = array_merge( $user_role_history, array( 'date' => date_i18n( 'm/d/Y', strtotime( um_user( 'user_registered' )) ), 'role' => $old_role ));
+
+                $array = array();
+                $array[] = array( 'date' => date_i18n( 'm/d/Y', strtotime( um_user( 'user_registered' ))), 'role' => $old_role );
+                $user_role_history = array_merge( $user_role_history, $array );
             }
         }
 
-        $user_role_history[] = array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $role );
+        if ( is_array( $user_role_history )) {
 
-        update_user_meta( $user_id, 'user_role_history', $user_role_history );
-        UM()->user()->remove_cache( $user_id );
+            if ( isset( $user_role_history['date'])) unset( $user_role_history['date'] );
+            if ( isset( $user_role_history['role'])) unset( $user_role_history['role'] );
+
+            $array = array();
+            $array[] = array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $role );
+            $user_role_history = array_merge( $user_role_history, $array );
+
+            update_user_meta( $user_id, 'user_role_history', $user_role_history );
+            UM()->user()->remove_cache( $user_id );
+        }
     }
 
     public function um_profile_content_user_role_history_default( $args ) {
 
         echo '<h4>' . __( 'User Role History', 'ultimate-member' ) . '</h4>
-              <div><table style="width:100%">';
+              <div><table>';
 
         echo '<tr><td style="border-bottom:none !important;">' . date_i18n( 'm/d/Y', strtotime( um_user( 'user_registered' ))) . '</td>
                   <td style="border-bottom:none !important;">' . __( 'User Registration', 'ultimate-member' ) . '</td>
@@ -104,8 +121,8 @@ Class UM_User_Role_History {
                   </tr>';
         }
 
+        
         $user_role_history = um_user( 'user_role_history' );
-
         if ( empty( $user_role_history )) {
 
             $role = UM()->roles()->get_priority_user_role( um_profile_id() );
@@ -117,13 +134,20 @@ Class UM_User_Role_History {
 
         } else {
 
-            foreach( $user_role_history as $role_step ) {
+            if ( is_array( $user_role_history )) {
 
-                $role_name = UM()->roles()->get_role_name( $role_step['role']);
-                if ( ! empty( $role_name )) {
-                    echo '<tr><td style="border-bottom:none !important;">' . esc_attr( $role_step['date'] ) . '</td>
-                              <td style="border-bottom:none !important;">' . esc_attr( $role_name ) . '</td>
-                          </tr>';
+                foreach( $user_role_history as $role_step ) {
+
+                    if ( is_array( $role_step ) && isset( $role_step['role'] ) && isset( $role_step['date'] )) {
+
+                        $role_name = UM()->roles()->get_role_name( $role_step['role'] );
+
+                        if ( ! empty( $role_name )) {
+                            echo '<tr><td style="border-bottom:none !important;">' . esc_attr( $role_step['date'] ) . '</td>
+                                      <td style="border-bottom:none !important;">' . esc_attr( $role_name ) . '</td>
+                                  </tr>';
+                        }
+                    }
                 }
             }
         }
@@ -134,3 +158,4 @@ Class UM_User_Role_History {
 }
 
 new UM_User_Role_History();
+
