@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         2.2.0
+ * Version:         2.3.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -54,28 +54,30 @@ Class UM_User_Role_History {
     public function um_after_user_role_is_updated_user_role_history( $new_role, $user_id, $user ) {
 
         if ( $this->duplicate_stop != $new_role ) {
+            if ( UM()->roles()->get_priority_user_role( $user_id ) != $new_role ) {
 
-            um_fetch_user( $user_id );
-            $user_role_history = um_user( 'user_role_history' );
-
-            if ( empty( $user_role_history )) {
-                $user_role_history = array();
-            }
-
-            if ( ! empty( $new_role ) && is_array( $user_role_history )) {
-
-                if ( isset( $user_role_history['date'])) unset( $user_role_history['date'] );
-                if ( isset( $user_role_history['role'])) unset( $user_role_history['role'] );
-
-                $array = array();
-                $array[] = array( 'date' => date_i18n( $this->get_date_format(), current_time( 'timestamp' )), 'role' => $new_role );
-                $user_role_history = array_merge( $user_role_history, $array );
-
-                update_user_meta( $user_id, 'user_role_history', $user_role_history );
-                UM()->user()->remove_cache( $user_id );
                 um_fetch_user( $user_id );
+                $user_role_history = um_user( 'user_role_history' );
 
-                $this->duplicate_stop = $new_role;
+                if ( empty( $user_role_history )) {
+                    $user_role_history = array();
+                }
+
+                if ( ! empty( $new_role ) && is_array( $user_role_history )) {
+
+                    if ( isset( $user_role_history['date'])) unset( $user_role_history['date'] );
+                    if ( isset( $user_role_history['role'])) unset( $user_role_history['role'] );
+
+                    $array = array();
+                    $array[] = array( 'date' => wp_date( $this->get_date_format(), current_time( 'timestamp' )), 'role' => $new_role );
+                    $user_role_history = array_merge( $user_role_history, $array );
+
+                    update_user_meta( $user_id, 'user_role_history', $user_role_history );
+                    UM()->user()->remove_cache( $user_id );
+                    um_fetch_user( $user_id );
+
+                    $this->duplicate_stop = $new_role;
+                }
             }
         }
 
@@ -85,37 +87,39 @@ Class UM_User_Role_History {
     public function custom_role_is_changed_user_role_history( $user_id, $role, $old_roles ) {
 
         if ( $this->duplicate_stop != $role ) {
+            if ( UM()->roles()->get_priority_user_role( $user_id ) != $role ) {
 
-            um_fetch_user( $user_id );
-            $user_role_history = um_user( 'user_role_history' );
+                um_fetch_user( $user_id );
+                $user_role_history = um_user( 'user_role_history' );
 
-            if ( empty( $user_role_history )) {
+                if ( empty( $user_role_history )) {
 
-                $user_role_history = array();
+                    $user_role_history = array();
 
-                if ( ! empty( $old_roles ) && is_array( $old_roles )) {
+                    if ( ! empty( $old_roles ) && is_array( $old_roles )) {
 
-                    $old_role = array_shift( $old_roles );
+                        $old_role = array_shift( $old_roles );
+
+                        $array = array();
+                        $array[] = array( 'date' => wp_date( $this->get_date_format(), strtotime( um_user( 'user_registered' ))), 'role' => $old_role );
+                        $user_role_history = array_merge( $user_role_history, $array );
+                    }
+                }
+
+                if ( is_array( $user_role_history )) {
+
+                    if ( isset( $user_role_history['date'])) unset( $user_role_history['date'] );
+                    if ( isset( $user_role_history['role'])) unset( $user_role_history['role'] );
 
                     $array = array();
-                    $array[] = array( 'date' => date_i18n( $this->get_date_format(), strtotime( um_user( 'user_registered' ))), 'role' => $old_role );
+                    $array[] = array( 'date' => wp_date( $this->get_date_format(), current_time( 'timestamp' )), 'role' => $role );
                     $user_role_history = array_merge( $user_role_history, $array );
+
+                    update_user_meta( $user_id, 'user_role_history', $user_role_history );
+                    UM()->user()->remove_cache( $user_id );
+
+                    $this->duplicate_stop = $role;
                 }
-            }
-
-            if ( is_array( $user_role_history )) {
-
-                if ( isset( $user_role_history['date'])) unset( $user_role_history['date'] );
-                if ( isset( $user_role_history['role'])) unset( $user_role_history['role'] );
-
-                $array = array();
-                $array[] = array( 'date' => date_i18n( $this->get_date_format(), current_time( 'timestamp' )), 'role' => $role );
-                $user_role_history = array_merge( $user_role_history, $array );
-
-                update_user_meta( $user_id, 'user_role_history', $user_role_history );
-                UM()->user()->remove_cache( $user_id );
-
-                $this->duplicate_stop = $role;
             }
         }
     }
@@ -125,7 +129,7 @@ Class UM_User_Role_History {
         echo '<h4>' . __( 'User Role History', 'ultimate-member' ) . '</h4>
               <div><table>';
 
-        echo '<tr><td style="border-bottom:none !important;">' . date_i18n( $this->get_date_format(), strtotime( um_user( 'user_registered' ))) . '</td>
+        echo '<tr><td style="border-bottom:none !important;">' . wp_date( $this->get_date_format(), strtotime( um_user( 'user_registered' ))) . '</td>
                   <td style="border-bottom:none !important;">' . __( 'User Registration', 'ultimate-member' ) . '</td>
               </tr>';
 
@@ -138,7 +142,7 @@ Class UM_User_Role_History {
 
         } else {
 
-            echo '<tr><td style="border-bottom:none !important;">' . esc_attr( date_i18n( $this->get_date_format(), $user_last_login ) ) . '</td>
+            echo '<tr><td style="border-bottom:none !important;">' . esc_attr( wp_date( $this->get_date_format(), $user_last_login ) ) . '</td>
                       <td style="border-bottom:none !important;">' . __( 'Last login', 'ultimate-member' ) . '</td>
                   </tr>';
         }
@@ -149,7 +153,7 @@ Class UM_User_Role_History {
             $role = UM()->roles()->get_priority_user_role( um_profile_id() );
             $role_name = UM()->roles()->get_role_name( $role );
 
-            echo '<tr><td style="border-bottom:none !important;">' . date_i18n( $this->get_date_format(), strtotime( um_user( 'user_registered' ))) . '</td>
+            echo '<tr><td style="border-bottom:none !important;">' . wp_date( $this->get_date_format(), strtotime( um_user( 'user_registered' ))) . '</td>
                       <td style="border-bottom:none !important;">' . esc_attr( $role_name ) . '</td>
                   </tr>';
 
@@ -165,7 +169,7 @@ Class UM_User_Role_History {
 
                         if ( ! empty( $role_name )) {
 
-                            $step_date = date_i18n( $this->get_date_format(), strtotime( $role_step['date'] ));
+                            $step_date = wp_date( $this->get_date_format(), strtotime( $role_step['date'] ));
                             echo '<tr><td style="border-bottom:none !important;">' . esc_attr( $step_date ) . '</td>
                                       <td style="border-bottom:none !important;">' . esc_attr( $role_name ) . '</td>
                                   </tr>';
@@ -193,3 +197,4 @@ Class UM_User_Role_History {
 }
 
 new UM_User_Role_History();
+
