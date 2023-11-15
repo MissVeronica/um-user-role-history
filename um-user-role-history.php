@@ -82,7 +82,7 @@ Class UM_User_Role_History {
     public function um_profile_content_user_role_history_default( $args ) {
 
         echo '<h4>' . __( 'User Role History', 'ultimate-member' ) . '</h4>
-              <div><table style="width:50%">';
+              <div><table style="width:100%">';
 
         echo '<tr><td style="border-bottom:none !important;">' . date_i18n( 'm/d/Y', strtotime( um_user( 'user_registered' ))) . '</td>
                   <td style="border-bottom:none !important;">' . __( 'User Registration', 'ultimate-member' ) . '</td>
