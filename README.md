@@ -6,12 +6,12 @@ Extension to Ultimate Member for display of User Role History of Role Changes an
 2. Appearance -> Profile Menu -> "Who can see User History Tab?" -> UM Selections
 3. General -> Users -> "User Role History - Date format" - Default is the WP date format "%s"
 
-## UM Profile page
+## UM Profile Page
 1. User Profile page menu Tab: User History
 
 ## Usermeta
 1. Meta_key for each User ID <code>user_role_history</code>
-2. Array with Date and Role for each change.
+2. Array with Date and Role ID for each change.
 
 ## Translations or Text changes
 1. Use the "Say What?" plugin with text domain ultimate-member
