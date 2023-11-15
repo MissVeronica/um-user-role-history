@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         1.3.0
+ * Version:         1.4.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -22,7 +22,7 @@ Class UM_User_Role_History {
 
         add_action( 'um_profile_content_user_role_history_default', array( $this, 'um_profile_content_user_role_history_default' ), 10, 1 );
         add_action( 'set_user_role',                                array( $this, 'custom_role_is_changed_user_role_history' ), 10, 3 );
-        add_action( 'um_after_user_role_is_updated',                array( $this, 'um_after_user_role_is_updated_user_role_history' ), 1000, 2 );
+        add_filter( 'um_set_user_role',                             array( $this, 'um_after_user_role_is_updated_user_role_history' ), 1000, 3 );
         add_filter( 'um_profile_tabs',                              array( $this, 'um_user_role_history_add_tab' ), 1000, 1 );
     }
 
@@ -39,7 +39,7 @@ Class UM_User_Role_History {
         return $tabs;
     }
 
-    public function um_after_user_role_is_updated_user_role_history( $user_id, $role ) {
+    public function um_after_user_role_is_updated_user_role_history( $new_role, $user_id, $user ) {
 
         um_fetch_user( $user_id );
         $user_role_history = um_user( 'user_role_history' );
@@ -48,7 +48,6 @@ Class UM_User_Role_History {
             $user_role_history = array();
         }
 
-        $new_role = UM()->user()->profile['role'];
         if ( ! empty( $new_role )) {
 
             $user_role_history = array_merge( $user_role_history, array( 'date' => date_i18n( 'm/d/Y', current_time( 'timestamp' )), 'role' => $new_role ));
@@ -57,6 +56,8 @@ Class UM_User_Role_History {
             UM()->user()->remove_cache( $user_id );
             um_fetch_user( $user_id );
         }
+
+        return $new_role;
     }
 
     public function custom_role_is_changed_user_role_history( $user_id, $role, $old_roles ) {
@@ -133,4 +134,3 @@ Class UM_User_Role_History {
 }
 
 new UM_User_Role_History();
-
