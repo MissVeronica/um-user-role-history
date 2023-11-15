@@ -9,6 +9,10 @@ Extension to Ultimate Member for display of User Role History of Role Changes an
 ## UM Profile page
 1. User Profile page menu Tab: User History
 
+## Usermeta
+1. Meta_key for each User ID <code>user_role_history</code>
+2. Array with Date and Role for each change.
+
 ## Translations or Text changes
 1. Use the "Say What?" plugin with text domain ultimate-member
 2. https://wordpress.org/plugins/say-what/
