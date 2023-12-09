@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         3.0.0
+ * Version:         3.1.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -10,7 +10,7 @@
  * Author URI:      https://github.com/MissVeronica
  * Text Domain:     ultimate-member
  * Domain Path:     /languages
- * UM version:      2.7.0
+ * UM version:      2.8.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; 
@@ -92,13 +92,13 @@ Class UM_User_Role_History {
         return $user_role_history;
     }
 
-    public function user_role_history_date( $date, $default = false ) {
+    public function user_role_history_date( $date_type, $default = false ) {
 
-        switch( $date  ) {
-            case 'user_registered': $date = get_date_from_gmt( um_user( 'user_registered' )); break;
-            case '_um_last_login':  $date = um_user( '_um_last_login' ); break;
-            case 'timestamp':       $date = current_time( 'timestamp' ); break;
-            default:                break;
+        switch( $date_type ) {
+            case 'user_registered': $date = um_user( 'user_registered' );  break;
+            case '_um_last_login':  $date = um_user( '_um_last_login' );   break;
+            case 'timestamp':       $date = current_time( 'mysql', true ); break;
+            default:                $date = $date_type; break;
         }
  
         $timestamp = $date;
@@ -111,7 +111,13 @@ Class UM_User_Role_History {
             $format = $this->get_date_format();
         }
 
-        $date = date_i18n( $format, $timestamp );
+        switch( $date_type ) {
+            case 'user_registered': $date = wp_date( $format, $timestamp ); break;
+            case '_um_last_login':  $date = wp_date( $format, $timestamp ); break;
+            case 'timestamp':       $date =    date( $format, $timestamp ); break;
+            default:                $date = wp_date( $format, $timestamp ); break;
+        }
+        
         if ( empty( $date )) {
             $date = __( 'Invalid date', 'ultimate-member' );
         }
