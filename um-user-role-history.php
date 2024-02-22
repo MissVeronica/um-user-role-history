@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Ultimate Member - User Role History
  * Description:     Extension to Ultimate Member for display of User Role History of Role Changes and User Registration Date and Last Login Date.
- * Version:         3.1.0
+ * Version:         3.2.0
  * Requires PHP:    7.4
  * Author:          Miss Veronica
  * License:         GPL v2 or later
@@ -10,7 +10,7 @@
  * Author URI:      https://github.com/MissVeronica
  * Text Domain:     ultimate-member
  * Domain Path:     /languages
- * UM version:      2.8.0
+ * UM version:      2.8.3
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; 
@@ -298,28 +298,31 @@ Class UM_User_Role_History {
 
     public function um_settings_structure_user_role_history( $settings_structure ) {
 
-        $settings_structure['']['sections']['users']['fields'][] = array(
+        $settings_structure['']['sections']['users']['form_sections']['user_role_history']['title']       = __( 'User Role History', 'ultimate-member' );
+        $settings_structure['']['sections']['users']['form_sections']['user_role_history']['description'] = __( 'Plugin version 3.2.0 - tested with UM 2.8.3', 'ultimate-member' );
+
+        $settings_structure['']['sections']['users']['form_sections']['user_role_history']['fields'][] = array(
                     'id'            => 'um_user_role_history_date_format',
                     'type'          => 'text',
                     'size'          => 'small',
                     'label'         => __( 'User Role History - Date/Time format', 'ultimate-member' ),
-                    'tooltip'       => sprintf( __( 'Default is the WP date format "%s %s". Both PHP date and time local formats can be used.', 'ultimate-member' ), get_option( 'date_format' ), get_option( 'time_format' )),
+                    'description'   => sprintf( __( 'Default is the WP date format "%s %s". Both PHP date and time local formats can be used.', 'ultimate-member' ), get_option( 'date_format' ), get_option( 'time_format' )),
                 );
 
-        $settings_structure['']['sections']['users']['fields'][] = array(
+        $settings_structure['']['sections']['users']['form_sections']['user_role_history']['fields'][] = array(
                     'id'            => 'um_user_role_history_max_changes',
                     'type'          => 'text',
                     'size'          => 'small',
                     'label'         => __( 'User Role History - Max number of Role changes saved', 'ultimate-member' ),
-                    'tooltip'       => sprintf( __( 'Default is %d saved Role changes per user.', 'ultimate-member' ), $this->max_saved_roles ),
+                    'description'   => sprintf( __( 'Default is %d saved Role changes per user.', 'ultimate-member' ), $this->max_saved_roles ),
                 );
 
-        $settings_structure['']['sections']['users']['fields'][] = array(
+        $settings_structure['']['sections']['users']['form_sections']['user_role_history']['fields'][] = array(
                     'id'            => 'um_user_role_history_types',
                     'type'          => 'text',
                     'size'          => 'medium',
                     'label'         => __( 'User Role History - Source type Translations', 'ultimate-member' ),
-                    'tooltip'       => __( 'Enter Source type translations comma separated like A:UM,B:Backend,C:Registration', 'ultimate-member' ),
+                    'description'   => __( 'Enter Source type translations comma separated like A:UM,B:Backend,C:Registration', 'ultimate-member' ),
                 );
 
         return $settings_structure;
