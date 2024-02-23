@@ -25,7 +25,7 @@ Extension to Ultimate Member for display of User Role History of Role Changes an
 ## Updates
 1. Version 3.0.0 This plugin documentation
 2. Version 3.1.0 Tested with UM 2.8.0
-3. Version 3.2.0 Tested with UM 2.8.3
+3. Version 3.2.0 Updated for UM 2.8.3
 
 ## Installation
 1. Install by downloading the plugin ZIP file and install as a new Plugin, which you upload in WordPress -> Plugins -> Add New -> Upload Plugin.
